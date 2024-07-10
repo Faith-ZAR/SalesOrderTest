@@ -1,0 +1,87 @@
+﻿
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-primary">
+        <div class="panel-heading text-center">
+        <h3 class="panel-title">Please enter the sales order details below.</h3>
+        </div>
+        <div class="panel-body">
+        <div class="row">
+        <div class="col-sm-6">
+        <div class="form-group col-md-4">
+        <label>Order Number </label>
+        <input type="text" name="OrderNumber" id="OrderNumber" class="form-control neworderheader" placeholder="Order Number" required="" />
+        </div>
+        <div class="form-group col-md-4">
+        <label>Order Type </label>
+        <select class="form-control selectpicker neworderheader" name="OrderTypeId" id="OrderTypeId" data-live-search="true" data-size="8" style="width: 70%;">
+        <option value="1" selected>Normal</option>
+        <option value="2">Staff</option>
+        <option value="3">Mechanical</option>
+        <option value="4">Perishable</option>
+        </select>
+        </div>
+        <div class="form-group col-md-4">
+        <label>Order Status </label>
+        <select class="form-control selectpicker neworderheader" name="OrderStatusId" id="OrderStatusId" data-live-search="true" data-size="8" style="width: 70%;">
+        <option value="1" selected>New</option>
+        <option value="2">Processing</option>
+        <option value="3">Complete</option>
+        </select>
+        </div>
+
+        </div>
+        <div class="col-sm-6">
+        <div class="form-group col-md-6">
+        <label>Customer Name</label>
+        <input type="text" name="CustomerName" id="CustomerName" class="form-control neworderheader" placeholder="Enter Customer Name" required="" />
+        </div>
+        <div class="form-group col-md-6">
+        <label>Order date </label>
+        <input type="text" name="CreateDate" id="CreateDate" class="form-control neworderheader" placeholder="Create Date Date" required="" />
+        </div>
+
+        </div>
+        </div>
+        <div class="row">
+        <div class="form-group col-md-12">
+        <div style="float: right; display:inline-block;">
+        <input class="btn btn-primary" name="btnAddOrderHeader" id="btnAddOrderHeader" value="Add Product" type="button">
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+
+        <div class="form-group row">
+        <div class="col-sm-6">
+        <div class="col-sm-4">
+        <label>Start Date</label>
+        <input class="form-control" placeholder="Start Date" type="text" id="StartCreateDate" name="StartCreateDate" />
+        </div>
+        <div class="col-sm-4">
+        <label>End Date</label>
+        <input class="form-control" placeholder="End Date" type="text" id="EndCreateDate" name="EndCreateDate" />
+        </div>
+        <div class="col-sm-4">
+        </div>
+        </div>
+        </div>
+
+        <table id="OrderHeaderTable" class="display hover table table-striped table-bordered" style="width:100%;">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th align="left" class="salesorderth">Order Number</th>
+                    <th align="left" class="salesorderth">Order Type</th>
+                    <th align="left" class="salesorderth">Order Status</th>
+                    <th align="left" class="salesorderth">Customer Name</th>
+                    <th align="left" class="salesorderth">Order date</th>
+                    <th align="left" class="salesorderth">Action</th>
+
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

@@ -1,5 +1,6 @@
 ﻿using SalesOrder.Data.Interfaces;
 using SalesOrder.Data.Models;
+using SalesOrder.Services.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,128 +10,75 @@ using System.Threading.Tasks;
 namespace SalesOrder.Services.Services
 {
     public class OrderHeaderService
-    {
-        private readonly IRepository<OrderHeader> _repository;
-        private SalesOrderList _salesOrders;
+    { 
+        private readonly ISalesOrderRepository _salesOrderRepository;
+        private readonly IXmlFileHandler _fileHandler;
 
-        public OrderHeaderService(IRepository<OrderHeader> repository, SalesOrderList salesOrderList)
+        public OrderHeaderService(ISalesOrderRepository salesOrderRepository, IXmlFileHandler fileHandler)
         {
-            _repository = repository;
-            _salesOrders = salesOrderList;
+            _salesOrderRepository = salesOrderRepository;
+            _fileHandler = fileHandler;
         }
 
         public IEnumerable<OrderHeader> GetAllOrderHeaders()
         {
-            List<OrderHeader> orderHeaderList = new List<OrderHeader>();
-            try
-            {
-                if (_salesOrders.salesOrderList != null)
-                {
-                    foreach (var salesOrder in _salesOrders.salesOrderList)
-                    {
-                        orderHeaderList.Add(salesOrder.orderHeader);
-                    }
-
-                }
-                return orderHeaderList;
-            }
-            catch (Exception)
-            {
-
-                return orderHeaderList;
-            }
+            var salesOrders = _salesOrderRepository.GetSalesOrders();
+            return salesOrders.salesOrderList.Select(x => x.orderHeader).ToList();
         }
 
-        public OrderHeader GetOrderHeader(int id)
+        public OrderHeader GetOrderHeader(int orderHeaderId)
         {
-            OrderHeader orderHeader = new OrderHeader();
-            try
-            {
-                if (_salesOrders.salesOrderList.Any(x => x.orderHeader.OrderHeaderId == id))
-                {
-                    var salesOrder = _salesOrders.salesOrderList.FirstOrDefault(x => x.orderHeader.OrderHeaderId == id);
-                    if (salesOrder != null)
-                    {
-                        orderHeader = salesOrder.orderHeader;
-                    }
-                }
-                return orderHeader;
-            }
-            catch (Exception)
-            {
-                return orderHeader;
-            }
+            var salesOrders = _salesOrderRepository.GetSalesOrders();
+            return salesOrders.salesOrderList.FirstOrDefault(x => x.orderHeader.OrderHeaderId == orderHeaderId)?.orderHeader;
         }
 
         public OrderHeader AddOrderHeader(OrderHeader orderHeader)
         {
-            try
-            {
-                if (orderHeader.OrderHeaderId <= 0)
-                {
-                    int OrderHeaderId = 1;
-                    Data.Models.SalesOrder lastSalesOrder = new Data.Models.SalesOrder();
-                    if (_salesOrders != null && _salesOrders.salesOrderList != null && _salesOrders.salesOrderList.Count() > 0)
-                    {
-                        lastSalesOrder = _salesOrders.salesOrderList.OrderByDescending(x => x.orderHeader.OrderHeaderId).First();
-                        OrderHeaderId = lastSalesOrder.orderHeader.OrderHeaderId + 1;
-                    }
+            if (orderHeader.OrderHeaderId > 0) return orderHeader;
 
-                    orderHeader.OrderHeaderId = OrderHeaderId;
-                    Data.Models.SalesOrder salesOrder = new Data.Models.SalesOrder()
-                    {
-                        orderHeader = orderHeader
-                    };
+            var salesOrders = _salesOrderRepository.GetSalesOrders();
+            int orderHeaderId = 1;
 
-                    _salesOrders.salesOrderList.Add(salesOrder);
-                    //SaveXmlSalesOrders(SalesOrders);
-                }
-                return orderHeader;
-            }
-            catch (Exception)
+            if (salesOrders.salesOrderList.Any())
             {
-                return orderHeader;
+                var lastSalesOrder = salesOrders.salesOrderList.OrderByDescending(x => x.orderHeader.OrderHeaderId).First();
+                orderHeaderId = lastSalesOrder.orderHeader.OrderHeaderId + 1;
             }
+
+            orderHeader.OrderHeaderId = orderHeaderId;
+            var salesOrder = new Data.Models.SalesOrder { orderHeader = orderHeader };
+            salesOrders.salesOrderList.Add(salesOrder);
+
+            _fileHandler.SaveSalesOrders(salesOrders);
+            return orderHeader;
         }
 
         public OrderHeader UpdateOrderHeader(OrderHeader orderHeader)
         {
-            try
-            {
-                if (orderHeader.OrderHeaderId >= 0 && _salesOrders.salesOrderList.Any(x => x.orderHeader.OrderHeaderId == orderHeader.OrderHeaderId))
-                {
-                    Data.Models.SalesOrder salesOrder = _salesOrders.salesOrderList.FirstOrDefault(x => x.orderHeader.OrderHeaderId == orderHeader.OrderHeaderId);
-                    _salesOrders.salesOrderList.Remove(salesOrder);
-                    salesOrder.orderHeader = orderHeader;
-                    _salesOrders.salesOrderList.Add(salesOrder);
-                    //SaveXmlSalesOrders(SalesOrders);
+            var salesOrders = _salesOrderRepository.GetSalesOrders();
 
-                }
-                return orderHeader;
-            }
-            catch (Exception exception)
-            {
-                return orderHeader;
-            }
+            var salesOrder = salesOrders.salesOrderList
+                .FirstOrDefault(x => x.orderHeader.OrderHeaderId == orderHeader.OrderHeaderId);
+            if (salesOrder == null) return orderHeader;
+
+            salesOrders.salesOrderList.Remove(salesOrder);
+            salesOrder.orderHeader = orderHeader;
+            salesOrders.salesOrderList.Add(salesOrder);
+
+            _fileHandler.SaveSalesOrders(salesOrders);
+            return orderHeader;
         }
 
         public void DeleteOrderHeader(OrderHeader orderHeader)
         {
-            try
-            {
-                if (orderHeader.OrderHeaderId >= 0 && _salesOrders.salesOrderList.Any(x => x.orderHeader.OrderHeaderId == orderHeader.OrderHeaderId))
-                {
-                    Data.Models.SalesOrder salesOrder = _salesOrders.salesOrderList.FirstOrDefault(x => x.orderHeader.OrderHeaderId == orderHeader.OrderHeaderId);
-                    _salesOrders.salesOrderList.Remove(salesOrder);
-                    //SaveXmlSalesOrders(_salesOrders);
+            var salesOrders = _salesOrderRepository.GetSalesOrders();
+            var salesOrder = salesOrders.salesOrderList
+                .FirstOrDefault(x => x.orderHeader.OrderHeaderId == orderHeader.OrderHeaderId);
+            if (salesOrder == null) return;
 
-                }
-            }
-            catch (Exception)
-            {
-
-                return; ;
-            }
+            salesOrders.salesOrderList.Remove(salesOrder);
+            _fileHandler.SaveSalesOrders(salesOrders);
         }
+
     }
 }

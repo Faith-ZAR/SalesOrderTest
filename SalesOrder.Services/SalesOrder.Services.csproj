@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SalesOrder.Data\SalesOrder.Data.csproj" />
+    <PackageReference Include="Dapper" Version="2.1.35" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Repositories\" />
+    <ProjectReference Include="..\SalesOrder.Data\SalesOrder.Data.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SalesOrder.Data.Models
+namespace SalesOrder.Data.Interfaces
 {
-    public class SalesOrderList
+    public interface IDataSource
     {
-        public List<SalesOrder> salesOrderList;
+        IDbConnection Connection { get; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using SalesOrder.Data.Interfaces;
 using SalesOrder.Data.Models;
+using SalesOrder.Services.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,36 +11,82 @@ namespace SalesOrder.Services.Services
 {
     public class OrderLineService
     {
-        private readonly IRepository<OrderLine> _repository;
+        private readonly ISalesOrderRepository _salesOrderRepository;
+        private readonly IXmlFileHandler _fileHandler;
 
-        public OrderLineService(IRepository<OrderLine> repository)
+        public OrderLineService(ISalesOrderRepository salesOrderRepository, IXmlFileHandler fileHandler)
         {
-            _repository = repository;
+            _salesOrderRepository = salesOrderRepository;
+            _fileHandler = fileHandler;
         }
 
-        public IEnumerable<OrderLine> GetAllOrderLines()
+        public OrderLine GetOrderLine(int orderLineId)
         {
-            return _repository.GetAll();
+            var salesOrders = _salesOrderRepository.GetSalesOrders();
+            return salesOrders.salesOrderList
+                .SelectMany(x => x.orderLineList)
+                .FirstOrDefault(x => x.OrderLineId == orderLineId);
         }
 
-        public OrderLine GetOrderLine(int id)
+        public IEnumerable<OrderLine> GetOrderLines(int orderHeaderId)
         {
-            return _repository.GetById(id);
+            var salesOrders = _salesOrderRepository.GetSalesOrders();
+            var salesOrder = salesOrders.salesOrderList
+                .FirstOrDefault(x => x.orderHeader.OrderHeaderId == orderHeaderId);
+            return salesOrder?.orderLineList;
         }
 
-        public void AddOrderLine(OrderLine header)
+        public OrderLine AddOrderLine(OrderLine orderLine)
         {
-            _repository.Add(header);
+            var salesOrders = _salesOrderRepository.GetSalesOrders();
+            var salesOrder = salesOrders.salesOrderList
+                .FirstOrDefault(x => x.orderHeader.OrderHeaderId == orderLine.OrderHeaderId);
+            if (salesOrder == null) return orderLine;
+
+            int orderLineId = salesOrders.salesOrderList.SelectMany(x => x.orderLineList).Max(x => x.OrderLineId) + 1;
+            int lineNumber = salesOrder.orderLineList.Any()
+                ? salesOrder.orderLineList.Max(x => x.LineNumber) + 1
+                : 1;
+
+            orderLine.OrderLineId = orderLineId;
+            orderLine.LineNumber = lineNumber;
+
+            salesOrder.orderLineList.Add(orderLine);
+            _fileHandler.SaveSalesOrders(salesOrders);
+            return orderLine;
         }
 
-        public void UpdateOrderLine(OrderLine header)
+        public OrderLine UpdateOrderLine(OrderLine orderLine)
         {
-            _repository.Add(header);
+            var salesOrders = _salesOrderRepository.GetSalesOrders();
+            var salesOrder = salesOrders.salesOrderList
+                .FirstOrDefault(x => x.orderHeader.OrderHeaderId == orderLine.OrderHeaderId);
+            if (salesOrder == null) return orderLine;
+
+            var existingOrderLine = salesOrder.orderLineList
+                .FirstOrDefault(x => x.OrderLineId == orderLine.OrderLineId);
+            if (existingOrderLine == null) return orderLine;
+
+            salesOrder.orderLineList.Remove(existingOrderLine);
+            salesOrder.orderLineList.Add(orderLine);
+
+            _fileHandler.SaveSalesOrders(salesOrders);
+            return orderLine;
         }
 
-        public void DeleteOrderLine(OrderLine header)
+        public void DeleteOrderLine(OrderLine orderLine)
         {
-            _repository.Add(header);
+            var salesOrders = _salesOrderRepository.GetSalesOrders();
+            var salesOrder = salesOrders.salesOrderList
+                .FirstOrDefault(x => x.orderHeader.OrderHeaderId == orderLine.OrderHeaderId);
+            if (salesOrder == null) return;
+
+            var existingOrderLine = salesOrder.orderLineList
+                .FirstOrDefault(x => x.OrderLineId == orderLine.OrderLineId);
+            if (existingOrderLine == null) return;
+
+            salesOrder.orderLineList.Remove(existingOrderLine);
+            _fileHandler.SaveSalesOrders(salesOrders);
         }
     }
 }

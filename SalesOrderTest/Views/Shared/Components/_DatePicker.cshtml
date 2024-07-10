@@ -1,0 +1,5 @@
+﻿@model Tuple<string, string, string, bool> // Model will be the name of the datepicker
+
+<input type="date" name="@Model.Item1" id="@Model.Item1" class="form-control @Model.Item2" placeholder="@Model.Item3" required="@Model.Item4" />
+
+@*<input type="text" name="CreateDate" id="CreateDate" class="form-control neworderheader" placeholder="Create Date Date" required="" />*@

@@ -1,8 +1,845 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿<!-- #region DropDown -->
+@{
+
+    var cssClass = "neworderheader";
+
+    var orderTypeList = new List<SelectListItem>
+                {
+                    new SelectListItem { Text = "Normal", Value = "1" },
+                    new SelectListItem { Text = "Staff", Value = "2" },
+                    new SelectListItem { Text = "Mechanical", Value = "3" },
+                    new SelectListItem { Text = "Perishable", Value = "4" }
+                };
+
+    var orderTypeDropdownModel = new Tuple<IEnumerable<SelectListItem>, string, string>
+    (
+        orderTypeList, cssClass, "OrderTypeId"
+    );
+
+
+    var orderStatusList = new List<SelectListItem>
+                {
+                    new SelectListItem { Text = "New", Value = "1" },
+                    new SelectListItem { Text = "Processing", Value = "2" },
+                    new SelectListItem { Text = "Complete", Value = "3" }
+                };
+
+    var orderStatusDropdownModel = new Tuple<IEnumerable<SelectListItem>, string, string>
+    (
+        orderStatusList, cssClass, "OrderStatusId"
+    );
+
+    var orderNumberTextModel = new Tuple<string, string, string, bool>
+    (
+        "OrderNumber", cssClass, "Order Number", true
+    );
+
+    var customerNameTextModel = new Tuple<string, string, string, bool>
+    (
+        "CustomerName", cssClass, "Enter Customer Name", true
+    );
+
+    var createdDateModel = new Tuple<string, string, string, bool>
+    (
+        "CreateDate", cssClass, "Create Date", false
+    );
+
+    var startDateModel = new Tuple<string, string, string, bool>
+    (
+        "StartCreateDate", "", "Start Date", false
+    );
+
+    var endDateModel = new Tuple<string, string, string, bool>
+    (
+        "EndDate", "", "End Date", false
+    );
+
+    var tableHeaders = new List<string> { "Order Number", "Order Type", "Order Status", "Customer Name", "Order Date" };
+    var tableData = new List<Dictionary<string, string>>
+                    {
+                        new Dictionary<string, string>
+                        {
+                            { "Order Number", "12345" },
+                            { "Order Type", "Normal" },
+                            { "Order Status", "New" },
+                            { "Customer Name", "John Doe" },
+                            { "Order Date", "2024-01-01" }
+                        },
+                        new Dictionary<string, string>
+                        {
+                            { "Order Number", "67890" },
+                            { "Order Type", "Staff" },
+                            { "Order Status", "Processing" },
+                            { "Customer Name", "Jane Smith" },
+                            { "Order Date", "2024-02-01" }
+                        }
+                    };
+    var dataTableModel = new Tuple<string, List<string>, List<Dictionary<string, string>>>("orderTable", tableHeaders, tableData);
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- #endregion -->
+
+
+<div class="container">
+    <div class="row row-cols-1">
+        <div class="col">
+            <h3 class="panel-title">Please enter the sales order details below.</h3>
+        </div>
+    </div>
+    <div class="row row-cols-5">
+        <div class="col">
+            <label>Order Number </label>
+            @await Html.PartialAsync("Components/_TextBox", orderNumberTextModel)
+        </div>
+        <div class="col">
+            <label>Order Type </label>
+            @await Html.PartialAsync("Components/_DropdownList", orderTypeDropdownModel)
+        </div>
+        <div class="col">
+
+            <label>Order Status </label>
+            @await Html.PartialAsync("Components/_DropdownList", orderStatusDropdownModel)
+        </div>
+        <div class="col">
+            <label>Customer Name</label>
+            @await Html.PartialAsync("Components/_TextBox", customerNameTextModel)
+        </div>
+        <div class="col">
+            <label>Order date </label>
+            @await Html.PartialAsync("Components/_DatePicker", createdDateModel)
+        </div>
+    </div>
+    <br />
+    <div class="row justify-content-end">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <input class="btn btn-primary" name="btnAddOrderHeader" id="btnAddOrderHeader" value="Add Product" type="button">
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row row-cols-2">
+        <div class="col">
+            <label>Start Date</label>
+            @await Html.PartialAsync("Components/_DatePicker", startDateModel)
+        </div>
+        <div class="col">
+            <label>End Date</label>
+            @await Html.PartialAsync("Components/_DatePicker", endDateModel)
+        </div>
+    </div>
+    <br />
+
+    <table id="OrderHeaderTable" class="display hover table table-striped table-bordered" style="width:100%;">
+        <thead>
+            <tr>
+                <th></th>
+                <th align="left" class="salesorderth">Order Number</th>
+                <th align="left" class="salesorderth">Order Type</th>
+                <th align="left" class="salesorderth">Order Status</th>
+                <th align="left" class="salesorderth">Customer Name</th>
+                <th align="left" class="salesorderth">Order date</th>
+                <th align="left" class="salesorderth">Action</th>
+
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <br />
+
 </div>
+
+<div class="modal fade" id="editorderHeaderModal" tabindex="-1" role="dialog" aria-labelledby="editorderHeaderModal" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:50%">
+        <div class="modal-content">
+            <div class="modal-header" style="text-align: center;">
+                <h2 class="modal-title capture-modal-title" id="modalHeading">Sales Order Header Edit</h2>
+            </div>
+            <div class="modal-body">
+                <div class="row mt" style="border-bottom: 1px solid #e5e5e5; padding: 15px">
+                    <form class="form-horizontal style-form" method="POST">
+                        <div class="row mt">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label">Order Number:</label></div>
+                                    <div class="col-sm-8">
+                                        @{
+                                            var orderNumberTextModel = new Tuple<string, string, string, bool>
+                                            (
+                                            "OrderHeaderId", "editorderheader", "Order Number", true
+                                            );
+                                        }
+                                        @await Html.PartialAsync("Components/_TextBox", orderNumberTextModel)
+                                        @*<input class="form-control editorderheader" type="text" name="OrderNumber" id="OrderNumber" />*@
+                                        <input class="form-control editorderheader" type="hidden" id="OrderHeaderId" name="OrderHeaderId" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label">Order Type:</label></div>
+                                    <div class="col-sm-8">
+                                        @await Html.PartialAsync("Components/_DropdownList", orderTypeDropdownModel)
+                                        @*<select class="form-control selectpicker editorderheader" name="OrderTypeId" id="editOrderTypeId" data-live-search="true" data-size="8" style="width: 70%;">
+                                            <option value="1">Normal</option>
+                                            <option value="2">Staff</option>
+                                            <option value="3">Mechanical</option>
+                                            <option value="4">Perishable</option>
+                                        </select>*@
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label">Order Status:</label></div>
+                                    <div class="col-sm-8">
+                                        @await Html.PartialAsync("Components/_DropdownList", orderStatusDropdownModel)
+                                        @*<select class="form-control selectpicker editorderheader" name="OrderStatusId" id="editOrderStatusId" data-live-search="true" data-size="8" style="width: 70%;">
+                                            <option value="1">New</option>
+                                            <option value="2">Processing</option>
+                                            <option value="3">Complete</option>
+                                        </select>*@
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label">Customer Name:</label></div>
+                                    <div class="col-sm-8">
+                                        @await Html.PartialAsync("Components/_TextBox", customerNameTextModel)
+                                        @*<input type="text" name="CustomerName" id="CustomerName" class="form-control editorderheader" placeholder="Enter Customer Name" required="" />*@
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label">Order date:</label></div>
+                                    <div class="col-sm-8">
+                                        @await Html.PartialAsync("Components/_DatePicker", createdDateModel)
+                                        @*<input type="text" name="CreateDate" id="CreateDate" class="form-control editorderheader" placeholder="Create Date Date" required="" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <button type="button" class="btn btn-secondary" onclick='javascript: return $("#editorderHeaderModal").modal("hide");'>Close</button>
+                            <button type="button" style="display: none" class="btn btn-success" id="btnSaveOrderHeaderChanges">Save Changes</button>
+                            <button type="button" style="display: none" class="btn btn-danger" id="btnDeleteOrderHeader">Remove</button>
+                        </div>
+                    </form>
+                </div>
+                @await Html.PartialAsync("Components/_DataTable", dataTableModel)
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="editorderHeaderModal" tabindex="-1" role="dialog" aria-labelledby="editorderHeaderModal" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:50%">
+        <div class="modal-content">
+            <div class="modal-header" style="text-align: center;">
+                <h2 class="modal-title capture-modal-title" id="modalHeading">Sales Order Header Edit</h2>
+            </div>
+            <div class="modal-body">
+                <div class="row mt" style="border-bottom: 1px solid #e5e5e5; padding: 15px">
+                    <form class="form-horizontal style-form" method="POST">
+                        <div class="row mt">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label">Order Number:</label></div>
+                                    <div class="col-sm-8">
+                                        <input class="form-control editorderheader" type="text" name="OrderNumber" id="OrderNumber" />
+                                        <input class="form-control  editorderheader" type="hidden" id="OrderHeaderId" name="OrderHeaderId" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label">Order Type:</label></div>
+                                    <div class="col-sm-8">
+                                        <select class="form-control selectpicker editorderheader" name="OrderTypeId" id="editOrderTypeId" data-live-search="true" data-size="8" style="width: 70%;">
+                                            <option value="1">Normal</option>
+                                            <option value="2">Staff</option>
+                                            <option value="3">Mechanical</option>
+                                            <option value="4">Perishable</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label">Order Status:</label></div>
+                                    <div class="col-sm-8">
+                                        <select class="form-control selectpicker editorderheader" name="OrderStatusId" id="editOrderStatusId" data-live-search="true" data-size="8" style="width: 70%;">
+                                            <option value="1">New</option>
+                                            <option value="2">Processing</option>
+                                            <option value="3">Complete</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label">Customer Name:</label></div>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="CustomerName" id="CustomerName" class="form-control editorderheader" placeholder="Enter Customer Name" required="" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label">Order date:</label></div>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="CreateDate" id="CreateDate" class="form-control editorderheader" placeholder="Create Date Date" required="" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <button type="button" class="btn btn-secondary" onclick='javascript: return $("#editorderHeaderModal").modal("hide");'>Close</button>
+                            <button type="button" style="display: none" class="btn btn-success" id="btnSaveOrderHeaderChanges">Save Changes</button>
+                            <button type="button" style="display: none" class="btn btn-danger" id="btnDeleteOrderHeader">Remove</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addOrderLineModal" tabindex="-1" role="dialog" aria-labelledby="addOrderLineModal" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-header" style="text-align: center;">
+                <h2 class="modal-title capture-modal-title" id="modalHeading">Save Product OrderLine</h2>
+            </div>
+            <div class="modal-body">
+                <div class="row mt" style="border-bottom: 1px solid #e5e5e5; padding: 15px">
+                    <form class="form-horizontal style-form" method="POST">
+                        <div class="row mt">
+                            <div class="col-lg-6">
+
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label">Line Number:</label></div>
+                                    <div class="col-sm-8">
+                                        <input class="form-control orderline-form" type="hidden" id="OrderLineOrderHeaderId" name="OrderHeaderId" />
+                                        <input class="form-control orderline-form" type="hidden" id="OrderLineId" name="OrderLineId" />
+                                        <input class="form-control orderline-form" readonly type="text" id="LineNumber" name="LineNumber" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label">Product Code :</label></div>
+                                    <div class="col-sm-8">
+                                        <input class="form-control orderline-form" type="text" id="ProductCode" name="ProductCode" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label">Product Type :</label></div>
+                                    <div class="col-sm-8">
+                                        <select class="form-control selectpicker orderline-form" name="ProductTypeId" id="ProductTypeId" data-live-search="true" data-size="8" style="width: 100%;">
+                                            <option value="1">Apparel</option>
+                                            <option value="2">Parts</option>
+                                            <option value="3">Equipment</option>
+                                            <option value="3">Motor</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label"> Cost Price :</label></div>
+                                    <div class="col-sm-8">
+                                        <input class="form-control orderline-form" type="text" id="CostPrice" name="CostPrice" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label"> Sales Price :</label></div>
+                                    <div class="col-sm-8">
+                                        <input class="form-control orderline-form" type="text" id="SalesPrice" name="SalesPrice" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-4"><label class="control-label">Quantity  :</label></div>
+                                    <div class="col-sm-8">
+                                        <input class="form-control orderline-form" type="text" id="Quantity" name="Quantity" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <button type="button" class="btn btn-secondary" onclick='javascript: return $("#addOrderLineModal").modal("hide");'>Close</button>
+                            <button type="button" class="btn btn-success" id="btnAddOrderLine">Save Order Line</button>
+                            <button type="button" style="display: none" class="btn btn-success" id="btnSaveChangesOrderLine">Save Order Line Changes</button>
+                            <button type="button" style="display: none" class="btn btn-danger" id="btnDeleteOrderLine">Delete Order Line</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+    {
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            LoadAllOrderHeaders();
+
+
+
+            $("#btnFilterOrderHeaderCreateDate").on("click", function () {
+                debugger;
+                let StartCreateDate = $("#StartCreateDate").val();
+                let EndCreateDate = $("#EndCreateDate").val();
+                let object = { "StartCreateDate": StartCreateDate, "EndCreateDate": EndCreateDate }
+
+            });
+
+            $("#btnAddOrderHeader").on("click", function () {
+                let OrderHeader = {};
+                OrderHeader["OrderType"] = $("#OrderTypeId option:selected").text();
+                OrderHeader["OrderStatus"] = $("#OrderStatusId option:selected").text();
+
+                $('.neworderheader').each(function () {
+                    var inputName = $(this).attr('name');
+                    if (inputName !== undefined) {
+                    var inputValue = $(this).val();
+
+                    console.log(inputName + ": " + inputValue);
+                    OrderHeader[inputName] = inputValue;
+                    }
+                });
+
+                AddOrderHeader(OrderHeader);
+            });
+
+
+            $("#btnSaveOrderHeaderChanges").on("click", function () {
+                let OrderHeader = {};
+                OrderHeader["OrderType"] = $("#editOrderTypeId option:selected").text();
+                OrderHeader["OrderStatus"] = $("#editOrderStatusId option:selected").text();
+
+                $(".editorderheader").each(function (index) {
+                    if ($(this).attr("name") !== undefined) {
+                        OrderHeader[this.name] = $(this).val();
+                    }
+                });
+                EditOrderHeader(OrderHeader);
+            });
+
+            $("#btnDeleteOrderHeader").on("click", function () {
+                let OrderHeader = {};
+                OrderHeader["OrderType"] = $("#editOrderTypeId option:selected").text();
+                OrderHeader["OrderStatus"] = $("#editOrderStatusId option:selected").text();
+
+                $(".editorderheader").each(function (index) {
+                    if ($(this).attr("name") !== undefined) {
+                        OrderHeader[this.name] = $(this).val();
+                    }
+                });
+                DeleteOrderHeader(OrderHeader);
+            });
+
+            $("#btnAddOrderLine").on("click", function () {
+                let OrderLine = {};
+                OrderLine["ProductType"] = $("#ProductTypeId option:selected").text();
+                $(".orderline-form").each(function (index) {
+                    if ($(this).attr("name") !== undefined) {
+                        OrderLine[this.name] = $(this).val();
+                    }
+                });
+                AddOrderLine(OrderLine);
+            });
+
+            $("#btnSaveChangesOrderLine").on("click", function () {
+                let OrderLine = {};
+                OrderLine["ProductType"] = $("#ProductTypeId option:selected").text();
+                $(".orderline-form").each(function (index) {
+                    if ($(this).attr("name") !== undefined) {
+                        OrderLine[this.name] = $(this).val();
+                    }
+                });
+                EditOrderLine(OrderLine);
+            });
+            $("#btnDeleteOrderLine").on("click", function () {
+                let OrderLine = {};
+                debugger;
+                OrderLine["ProductType"] = $("#ProductTypeId option:selected").text();
+                $(".orderline-form").each(function (index) {
+                    if ($(this).attr("name") !== undefined) {
+                        OrderLine[this.name] = $(this).val();
+                    }
+                });
+                DeleteOrderLine(OrderLine);
+            });
+
+
+
+        });
+
+
+        function LoadAllOrderHeaders() {
+            $.ajax({
+                url: `api/orderheader/list`,
+                type: "GET",
+                cache: false,
+                success: function (orderHeaderlist) {
+                    console.log(orderHeaderlist)
+                    BindOrderHeaderTable(orderHeaderlist)
+                },
+                error: function (req, status, error) {
+                    console.log(req);
+                }
+            });
+        }
+
+        function AddOrderHeader(OrderHeader) {
+
+            $.ajax({
+                type: 'POST',
+                cache: true,
+                url: `api/orderheader/add`,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(OrderHeader),
+                success: function (response) {
+                    location.reload();
+                },
+                error: function (data) {
+                    console.log(data.responseText);
+                }
+            });
+        }
+
+        function EditOrderHeader(OrderHeader) {
+            $.ajax({
+                type: 'POST',
+                cache: true,
+                url: `api/v1/orderheader/edit/`,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(OrderHeader),
+                success: function (response) {
+                    location.reload();
+                },
+                error: function (data) {
+                    console.log(data.responseText);
+                }
+            });
+        }
+
+        function DeleteOrderHeader(OrderHeader) {
+            $.ajax({
+                type: 'POST',
+                cache: true,
+                url: `api/orderheader/delete`,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(OrderHeader),
+                success: function (response) {
+                    location.reload();
+                },
+                error: function (data) {
+                    console.log(data.responseText);
+                }
+            });
+        }
+        function BindOrderHeaderTable(orderHeaderlist) {
+            var orderHeaderTable = undefined;
+
+            console.log("orderHeaderlist: " + JSON.stringify(orderHeaderlist))
+
+            orderHeaderlist.forEach(function (orderHeader) {
+                console.log("single obj" + JSON.stringify(orderHeader));
+            });
+            if (orderHeaderTable == undefined) {
+
+                orderHeaderTable = $('#OrderHeaderTable').DataTable({
+                    data: orderHeaderlist,
+                    orderCellsTop: true,
+                    fixedHeader: true,
+                    columns: [
+                        {
+                            className: 'dt-control',
+                            orderable: false,
+                            data: null,
+                            defaultContent: '',
+                        },
+                        { data: 'orderNumber' },
+                        { data: 'orderType' },
+                        { data: 'orderStatus' },
+                        { data: 'customerName' },
+                        { data: 'createDate' },
+                        {
+                            data: null,
+                            className: 'dt-edit',
+                            orderable: false,
+                            render: function (data) {
+                                let editButton = `<button title="Edit order header" class="btn btn-primary btn-xs edit-order-header">Edit</button>
+                                    <button title="Add order line" class="btn btn-success btn-xs add-order-line">Add Order Line</button>
+                                    <button title="Delete order header" class="btn btn-danger btn-xs delete-order-header">Delete</button>`;
+                                return editButton;
+                            }
+                        }
+
+                    ]
+                });
+
+                $('#OrderHeaderTable tbody').on('click', '.edit-order-header', function () {
+                    let data = orderHeaderTable.row($(this).closest('tr')).data();
+                    $(".editorderheader").each(function (index) {
+                        for (let attribute in data) {
+                            if ($(this).attr("name") !== undefined && $(this).attr("name") == attribute) {
+                                if ($(this).attr("name") == 'OrderTypeId' || $(this).attr("name") == 'OrderStatusId') {
+
+                                    $(this).val(data[attribute]).change();
+                                } else {
+                                    $(this).val(data[attribute]);
+                                }
+                            }
+                        }
+                    });
+                    $("#modalHeading").text("Sales Order Header Edit");
+                    $("#btnSaveOrderHeaderChanges").show();
+                    $("#editorderHeaderModal").modal('show');
+                });
+
+                $('#OrderHeaderTable tbody').on('click', '.delete-order-header', function () {
+                    let data = orderHeaderTable.row($(this).closest('tr')).data();
+                    $(".editorderheader").each(function (index) {
+                        for (let attribute in data) {
+                            if ($(this).attr("name") !== undefined && $(this).attr("name") == attribute) {
+                                if ($(this).attr("name") == 'OrderTypeId' || $(this).attr("name") == 'OrderStatusId') {
+
+                                    $(this).val(data[attribute]).change();
+                                } else {
+                                    $(this).val(data[attribute]);
+                                }
+                                $(this).prop("readonly", true);
+                            }
+
+                        }
+                    });
+                    $("#modalHeading").text("Delete Current Order Header");
+                    $("#btnDeleteOrderHeader").show();
+                    $("#btnSaveOrderHeaderChanges").hide();
+                    $("#editorderHeaderModal").modal('show');
+                });
+
+                $('#OrderHeaderTable tbody').on('click', '.add-order-line', function () {
+
+                    let orderHeaderId = orderHeaderTable.row($(this).closest('tr')).data().OrderHeaderId;
+                    $("#OrderLineOrderHeaderId").val(orderHeaderId);
+                    $.when($.ajax({
+                        url: `api/v1/salesorders/orderlinelist?orderHeaderId=${orderHeaderId}`,
+                        type: "GET",
+                        cache: false,
+                        success: function (orderLineList) {
+                        },
+                        error: function (req, status, error) {
+                            console.log(req);
+                        }
+                    })).done(function (orderLineList) {
+                        let countLineNumber = orderLineList.length + 1;
+                        $("#LineNumber").val(countLineNumber);
+                        $("#addOrderLineModal").modal('show');
+                    });
+
+                });
+
+                $('#OrderHeaderTable tbody').on('click', 'td.dt-control', function () {
+                    let orderHeaderId = orderHeaderTable.row($(this).closest('tr')).data().OrderHeaderId;
+                    var tr = $(this).closest('tr');
+                    var row = orderHeaderTable.row(tr);
+                    let data = orderHeaderTable.row($(this).closest('tr')).data();
+                    if (row.child.isShown()) {
+                        row.child.hide();
+                        tr.removeClass('shown');
+                    } else {
+                        showOrderLines(orderHeaderId, row);
+                        tr.addClass('shown');
+                    }
+                });
+
+                $.fn.dataTable.ext.search.push(
+                    function (settings, data, dataIndex) {
+                        var FilterStart = $('#StartCreateDate').val();
+                        var FilterEnd = $('#EndCreateDate').val();
+                        var DataTableStart = data[4].trim();
+                        var DataTableEnd = data[5].trim();
+                        if (FilterStart == '' || FilterEnd == '') {
+                            return true;
+                        }
+                        if (DataTableStart >= FilterStart && DataTableEnd <= FilterEnd) {
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+
+                    });
+                $('#EndCreateDate').change(function (e) {
+                    orderHeaderTable.draw();
+                });
+            }
+
+            function showOrderLines(orderHeaderId, row) {
+
+
+                $.when($.ajax({
+                    url: `api/v1/salesorders/orderlinelist?orderHeaderId=${orderHeaderId}`,
+                    type: "GET",
+                    cache: false,
+                    success: function (orderLineList) {
+                        _orderLineList = orderLineList;
+                    },
+                    error: function (req, status, error) {
+                        console.log(req);
+                    }
+                })).done(function (orderLineList) {
+
+                    var childTable = ''
+                    var childDataTable = undefined;
+                    childTable = `<table  id="OrderLinesTable" class="display hover table table-striped table-bordered" style="width:100%">
+                                            <thead>
+                                            <tr>
+                                                <th>Product Code</th>
+                                                <th>Line Number</th>
+                                                <th>Product Type</th>
+                                                <th>Cost Price</th>
+                                                <th>Sales Price</th>
+                                                <th>Quantity</th>
+                                                <th>Action</th>
+                                            </tr>
+                                            </thead></table>`;
+
+                    var elem = document.createElement("div");
+                    elem.innerHTML = childTable;
+                    childDataTable = $(elem).find("#OrderLinesTable").DataTable({
+                        paging: false,
+                        data: orderLineList,
+                        columns: [
+
+                            { data: 'ProductCode' },
+                            { data: 'LineNumber' },
+                            { data: 'ProductType' },
+                            { data: 'CostPrice' },
+                            { data: 'SalesPrice' },
+                            { data: 'Quantity' },
+                            {
+                                data: null,
+                                className: "dt-center",
+                                orderable: false,
+                                render: function (data) {
+                                    let editButton = `<button title="Edit order line" class="btn btn-success btn-xs edit-orderline">Edit</button>
+                                                              <button title="Delete order line" class="btn btn-danger btn-xs delete-orderline">Delete</button>`;
+                                    return editButton;
+
+                                }
+                            }
+                        ],
+                    });
+
+                    row.child(elem).show();
+                    $('#OrderLinesTable tbody').on('click', '.edit-orderline', function () {
+                        let data = childDataTable.row($(this).closest('tr')).data();
+                        $(".orderline-form").each(function (index) {
+                            for (let attribute in data) {
+                                if ($(this).attr("name") !== undefined && $(this).attr("name") == attribute) {
+                                    if ($(this).attr("name") == 'ProductTypeId' || $(this).attr("name") == 'ProductTypeId') {
+                                        $(this).val(data[attribute]).change();
+                                    } else {
+                                        $(this).val(data[attribute]);
+                                    }
+
+                                }
+
+                            }
+                        });
+
+                        $("#btnSaveChangesOrderLine").show();
+                        $("#btnDeleteOrderLine").hide();
+                        $("#btnAddOrderLine").hide();
+                        $("#addOrderLineModal").modal('show');
+
+                    });
+
+                    $('#OrderLinesTable tbody').on('click', '.delete-orderline', function () {
+                        let data = childDataTable.row($(this).closest('tr')).data();
+                        $(".orderline-form").each(function (index) {
+                            for (let attribute in data) {
+                                if ($(this).attr("name") !== undefined && $(this).attr("name") == attribute) {
+                                    if ($(this).attr("name") == 'ProductTypeId' || $(this).attr("name") == 'ProductTypeId') {
+                                        $(this).val(data[attribute]).change();
+                                    } else {
+                                        $(this).val(data[attribute]);
+                                    }
+                                    $(this).prop("readonly", true);
+                                }
+
+                            }
+                        });
+
+                        $("#btnSaveChangesOrderLine").hide();
+                        $("#btnDeleteOrderLine").show();
+                        $("#btnAddOrderLine").hide();
+                        $("#addOrderLineModal").modal('show');
+
+                    });
+
+
+                });
+
+            }
+
+
+        }
+
+
+        function AddOrderLine(OrderLine) {
+
+            $.ajax({
+                type: 'POST',
+                cache: true,
+                url: `api/v1/salesorders/addorderline`,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(OrderLine),
+                success: function (response) {
+                    location.reload();
+                },
+                error: function (data) {
+                    console.log(data.responseText);
+                }
+            });
+        }
+        
+        function EditOrderLine(OrderLine) {
+            $.ajax({
+                type: 'POST',
+                cache: true,
+                url: `api/v1/salesorders/editorderline`,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(OrderLine),
+                success: function (response) {
+                    location.reload();
+                },
+                error: function (data) {
+                    console.log(data.responseText);
+                }
+            });
+        }
+        function DeleteOrderLine(OrderLine) {
+            $.ajax({
+                type: 'POST',
+                cache: true,
+                url: `api/v1/salesorders/deleteorderline`,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(OrderLine),
+                success: function (response) {
+                    location.reload();
+                },
+                error: function (data) {
+                    console.log(data.responseText);
+                }
+            });
+        }
+
+
+    </script>
+}

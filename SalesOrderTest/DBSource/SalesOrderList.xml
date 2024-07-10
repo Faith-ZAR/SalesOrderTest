@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SalesOrders xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<salesOrderList>
+		<SalesOrder>
+			<orderHeader>
+				<OrderHeaderId>1</OrderHeaderId>
+				<OrderNumber>1</OrderNumber>
+				<OrderType>Normal</OrderType>
+				<OrderTypeId>1</OrderTypeId>
+				<CustomerName>testco</CustomerName>
+				<CreateDate>11/14/2022 10:01:00</CreateDate>
+				<isOrderHeaderDeleted>false</isOrderHeaderDeleted>
+				<OrderStatusId>1</OrderStatusId>
+				<OrderStatus>New</OrderStatus>
+			</orderHeader>
+		</SalesOrder>
+	</salesOrderList>
+</SalesOrders>

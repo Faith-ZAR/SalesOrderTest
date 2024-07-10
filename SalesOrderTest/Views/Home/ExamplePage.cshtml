@@ -1,0 +1,15 @@
+﻿@model SalesOrder.Data.Models.OrderHeader
+
+@{
+    ViewData["Title"] = "Example Page";
+}
+
+
+<h2>Example Page</h2>
+
+<!-- Render Button Partial View -->
+@await Html.PartialAsync("Components/_Button", "Click Me")
+<br/>
+@await Html.PartialAsync("Components/_TextBox", "Click Me")
+<br/>
+@await Html.PartialAsync("Components/_DatePicker", "Click Me")

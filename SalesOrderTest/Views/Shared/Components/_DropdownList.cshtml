@@ -1,0 +1,10 @@
+﻿@model Tuple<IEnumerable<SelectListItem>, string, string> 
+@*// Item1: List items, Item2: Selected value, Item3: CSS class, Item4: Name, Item5: data-live-search, Item6: data-size, Item7: style*@
+
+<select class="form-control selectpicker @Model.Item2" name="@Model.Item3" id="@Model.Item3" 
+        data-live-search="true" data-size="8" style="width: 70%;">
+    @foreach (var item in Model.Item1)
+    {
+        <option value="@item.Value" selected="@(item.Value == "1" ? "selected" : null)">@item.Text</option>
+    }
+</select>
