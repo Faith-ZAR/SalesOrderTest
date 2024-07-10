@@ -19,7 +19,7 @@ namespace SalesOrderTest.Controllers
             _orderLineService = orderLineService;
         }
 
-        [HttpGet("list")]
+        [HttpGet("list/{orderHeaderId}")]
         public IActionResult GetOrderLineList(int orderHeaderId)
         {
             try

@@ -26,9 +26,9 @@ builder.Services.AddScoped<ISalesOrderRepository, SalesOrderRepository>();
 
 
 builder.Services.AddScoped<OrderHeaderService>();
-builder.Services.AddScoped<IRepository<OrderLine>, OrderLineRepository>();
-builder.Services.AddScoped<OrderHeaderService>();
+builder.Services.AddScoped<OrderLineService>();
 
+builder.Services.AddScoped<IRepository<OrderLine>, OrderLineRepository>();
 builder.Services.AddScoped<IRepository<OrderHeader>, OrderHeaderRepository>();
 
 var app = builder.Build();

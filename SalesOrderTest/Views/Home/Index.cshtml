@@ -82,6 +82,25 @@
                         }
                     };
     var dataTableModel = new Tuple<string, List<string>, List<Dictionary<string, string>>>("orderTable", tableHeaders, tableData);
+
+
+    Tuple<string, string, string> orderLineOrderHeaderIdModel;
+    Tuple<string, string, string> orderLineIdModel;
+    Tuple<string, string, string, bool> orderLineNumberModel;
+    Tuple<string, string, string, bool> productCodeModel;
+    Tuple<IEnumerable<SelectListItem>, string, string> productTypeIdModel;
+    Tuple<string, string, string, bool> costPriceModel;
+    Tuple<string, string, string, bool> salesPriceModel;
+    Tuple<string, string, string, bool> quantityModel;
+
+
+    var productTypeList = new List<SelectListItem>
+                {
+                    new SelectListItem { Text = "Apparel", Value = "1" },
+                    new SelectListItem { Text = "Parts", Value = "2" },
+                    new SelectListItem { Text = "Equipment", Value = "3" },
+                    new SelectListItem { Text = "Motor", Value = "4" }
+                };
 }
 
 <!-- #endregion -->
@@ -290,16 +309,8 @@
                                             (
                                             "OrderNumber", "editorderheader", "Order Number", true
                                             );
-
-                                            @*orderHeaderIdModel = new Tuple<string, string, string, bool>
-                                            (
-                                            "OrderHeaderId", "editorderheader", "Order Header", true
-                                            );*@
                                         }
                                         @await Html.PartialAsync("Components/_TextBox", orderNumberModel)
-                                        @*@await Html.PartialAsync("Components/_TextBox", orderHeaderIdModel)
-                                        <input class="form-control editorderheader" type="text" name="OrderNumber" id="OrderNumber" />
-                                        <input class="form-control  editorderheader" type="hidden" id="OrderHeaderId" name="OrderHeaderId" />*@
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -313,12 +324,6 @@
                                             );
                                         }
                                         @await Html.PartialAsync("Components/_DropdownList", orderTypeModel)
-                                        @*<select class="form-control selectpicker editorderheader" name="OrderTypeId" id="editOrderTypeId" data-live-search="true" data-size="8" style="width: 70%;">
-                                            <option value="1">Normal</option>
-                                            <option value="2">Staff</option>
-                                            <option value="3">Mechanical</option>
-                                            <option value="4">Perishable</option>
-                                        </select>*@
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -332,11 +337,6 @@
                                             );
                                         }
                                         @await Html.PartialAsync("Components/_DropdownList", orderStatusModel)
-                                        @*<select class="form-control selectpicker editorderheader" name="OrderStatusId" id="editOrderStatusId" data-live-search="true" data-size="8" style="width: 70%;">
-                                            <option value="1">New</option>
-                                            <option value="2">Processing</option>
-                                            <option value="3">Complete</option>
-                                        </select>*@
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -349,7 +349,6 @@
                                             );
                                         }
                                         @await Html.PartialAsync("Components/_TextBox", customerNameModel)
-                                        @*<input type="text" name="CustomerName" id="CustomerName" class="form-control editorderheader" placeholder="Enter Customer Name" required="" />*@
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -364,7 +363,6 @@
                                             );
                                         }
                                         @await Html.PartialAsync("Components/_DatePicker", createdDateModel)
-                                        @*<input type="text" name="CreateDate" id="CreateDate" class="form-control editorderheader" placeholder="Create Date Date" required="" />*@
                                     </div>
                                 </div>
                             </div>
@@ -397,28 +395,63 @@
                                 <div class="form-group">
                                     <div class="col-sm-4"><label class="control-label">Line Number:</label></div>
                                     <div class="col-sm-8">
-                                        <input class="form-control orderline-form" type="hidden" id="OrderLineOrderHeaderId" name="OrderHeaderId" />
-                                        <input class="form-control orderline-form" type="hidden" id="OrderLineId" name="OrderLineId" />
-                                        <input class="form-control orderline-form" readonly type="text" id="LineNumber" name="LineNumber" />
+                                        @*<input class="form-control orderline-form" type="hidden" id="OrderLineOrderHeaderId" name="OrderHeaderId" />
+                                        //<input class="form-control orderline-form" type="hidden" id="OrderLineId" name="OrderLineId" />*@
+
+                                        @{
+                                            orderLineOrderHeaderIdModel = new Tuple<string, string, string>
+                                            (
+                                            "hidden", "OrderHeaderId", "orderline-form"
+                                            );
+
+                                            orderLineIdModel = new Tuple<string, string, string>
+                                            (
+                                            "hidden", "OrderLineId", "orderline-form"
+                                            );
+
+                                            orderLineNumberModel = new Tuple<string, string, string, bool>
+                                            (
+                                            "LineNumber", "orderline-form", "Line Number", true
+                                            );
+                                        }
+                                        @await Html.PartialAsync("Components/_TypeTextBox", orderLineOrderHeaderIdModel)
+                                        @await Html.PartialAsync("Components/_TypeTextBox", orderLineIdModel)
+                                        @await Html.PartialAsync("Components/_TextBox", orderLineNumberModel)
+                                        @*<input class="form-control orderline-form" readonly type="text" id="LineNumber" name="LineNumber" />*@
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="col-sm-4"><label class="control-label">Product Code :</label></div>
                                     <div class="col-sm-8">
-                                        <input class="form-control orderline-form" type="text" id="ProductCode" name="ProductCode" />
+                                        @{
+                                            productCodeModel = new Tuple<string, string, string, bool>
+                                            (
+                                            "ProductCode", "orderline-form", "Product Code", true
+                                            );
+                                        }
+                                        @await Html.PartialAsync("Components/_TextBox", productCodeModel)
+                                        @*<input class="form-control orderline-form" type="text" id="ProductCode" name="ProductCode" />*@
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="col-sm-4"><label class="control-label">Product Type :</label></div>
                                     <div class="col-sm-8">
-                                        <select class="form-control selectpicker orderline-form" name="ProductTypeId" id="ProductTypeId" data-live-search="true" data-size="8" style="width: 100%;">
+                                        @{
+
+                                            productTypeIdModel = new Tuple<IEnumerable<SelectListItem>, string, string>
+                                            (
+                                            productTypeList, "selectpicker orderline-form", "ProductTypeId"
+                                            );
+                                        }
+                                        @await Html.PartialAsync("Components/_DropdownList", productTypeIdModel)
+                                        @*<select class="form-control selectpicker orderline-form" name="ProductTypeId" id="ProductTypeId" data-live-search="true" data-size="8" style="width: 100%;">
                                             <option value="1">Apparel</option>
                                             <option value="2">Parts</option>
                                             <option value="3">Equipment</option>
                                             <option value="3">Motor</option>
-                                        </select>
+                                        </select>*@
                                     </div>
                                 </div>
 
@@ -427,21 +460,42 @@
                                 <div class="form-group">
                                     <div class="col-sm-4"><label class="control-label"> Cost Price :</label></div>
                                     <div class="col-sm-8">
-                                        <input class="form-control orderline-form" type="text" id="CostPrice" name="CostPrice" />
+                                        @{
+                                            costPriceModel = new Tuple<string, string, string, bool>
+                                            (
+                                            "CostPrice", "orderline-form", "Cost Price", true
+                                            );
+                                        }
+                                        @await Html.PartialAsync("Components/_TextBox", costPriceModel)
+                                        @*<input class="form-control orderline-form" type="text" id="CostPrice" name="CostPrice" />*@
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="col-sm-4"><label class="control-label"> Sales Price :</label></div>
                                     <div class="col-sm-8">
-                                        <input class="form-control orderline-form" type="text" id="SalesPrice" name="SalesPrice" />
+                                        @{
+                                            salesPriceModel = new Tuple<string, string, string, bool>
+                                            (
+                                            "SalesPrice", "orderline-form", "Sales Price", true
+                                            );
+                                        }
+                                        @await Html.PartialAsync("Components/_TextBox", salesPriceModel)
+                                        @*<input class="form-control orderline-form" type="text" id="SalesPrice" name="SalesPrice" />*@
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="col-sm-4"><label class="control-label">Quantity  :</label></div>
                                     <div class="col-sm-8">
-                                        <input class="form-control orderline-form" type="text" id="Quantity" name="Quantity" />
+                                        @{
+                                            quantityModel = new Tuple<string, string, string, bool>
+                                            (
+                                            "Quantity", "orderline-form", "Quantity", true
+                                            );
+                                        }
+                                        @await Html.PartialAsync("Components/_TextBox", quantityModel)
+                                        @*<input class="form-control orderline-form" type="text" id="Quantity" name="Quantity" />*@
                                     </div>
                                 </div>
                             </div>
@@ -524,9 +578,13 @@
             $("#btnAddOrderLine").on("click", function () {
                 let OrderLine = {};
                 OrderLine["ProductType"] = $("#ProductTypeId option:selected").text();
+
                 $(".orderline-form").each(function (index) {
-                    if ($(this).attr("name") !== undefined) {
-                        OrderLine[this.name] = $(this).val();
+                    var inputName = $(this).attr('name');
+                    if (inputName !== undefined) {
+                        var inputValue = $(this).val();
+
+                        OrderLine[inputName] = inputValue;
                     }
                 });
                 AddOrderLine(OrderLine);
@@ -627,6 +685,13 @@
         function BindOrderHeaderTable(orderHeaderlist) {
             var orderHeaderTable = undefined;
 
+            console.log(orderHeaderlist); // Log the entire object array to the console
+
+            // Alternatively, log each object individually
+            orderHeaderlist.forEach(function (orderHeader) {
+                console.log(orderHeader);
+            });
+
             if (orderHeaderTable == undefined) {
 
                 orderHeaderTable = $('#OrderHeaderTable').DataTable({
@@ -660,24 +725,9 @@
                     ]
                 });
 
-                /**
-                 *
-                 *
-                $('.neworderheader').each(function () {
-                    var inputName = $(this).attr('name');
-                    if (inputName !== undefined) {
-                    var inputValue = $(this).val();
-
-                    console.log(inputName + ": " + inputValue);
-                    OrderHeader[inputName] = inputValue;
-                    }
-                });
-                 */
-
                 $('#OrderHeaderTable tbody').on('click', '.edit-order-header', function () {
                     let data = orderHeaderTable.row($(this).closest('tr')).data();
                     $(".editorderheader").each(function (index) {
-                        for (let attribute in data) {
                             var inputName = $(this).attr('name');
 
                             if (inputName !== undefined) {
@@ -696,7 +746,6 @@
                                     }
                                 }
                             }
-                        }
                     });
                     $("#modalHeading").text("Sales Order Header Edit");
                     $("#btnSaveOrderHeaderChanges").show();
@@ -705,18 +754,23 @@
 
                 $('#OrderHeaderTable tbody').on('click', '.delete-order-header', function () {
                     let data = orderHeaderTable.row($(this).closest('tr')).data();
-                    $(".editorderheader").each(function (index) {
-                        for (let attribute in data) {
-                            if ($(this).attr("name") !== undefined && $(this).attr("name") == attribute) {
-                                if ($(this).attr("name") == 'OrderTypeId' || $(this).attr("name") == 'OrderStatusId') {
 
-                                    $(this).val(data[attribute]).change();
+                    $(".editorderheader").each(function (index) {
+                        var inputName = $(this).attr('name');
+
+                        if (inputName !== undefined) {
+                            var attributeName = Object.keys(data).find(key => key.toLowerCase() === inputName.toLowerCase());
+
+                            if (attributeName !== undefined) {
+                                var inputValue = $(this).val();
+
+                                if (inputName == 'OrderTypeId' || inputName == 'OrderStatusId') {
+                                    $(this).val(data[attributeName]).change();
                                 } else {
-                                    $(this).val(data[attribute]);
+                                    $(this).val(data[attributeName]);
                                 }
                                 $(this).prop("readonly", true);
                             }
-
                         }
                     });
                     $("#modalHeading").text("Delete Current Order Header");
@@ -725,12 +779,61 @@
                     $("#editorderHeaderModal").modal('show');
                 });
 
+
                 $('#OrderHeaderTable tbody').on('click', '.add-order-line', function () {
 
-                    let orderHeaderId = orderHeaderTable.row($(this).closest('tr')).data().OrderHeaderId;
+                    let data = orderHeaderTable.row($(this).closest('tr')).data();
+                    console.log("Row data: ", data); // Log the entire data object for debugging
+
+                    // Check if the OrderHeaderId property exists in the data object
+                    if (data && data.orderHeaderId !== undefined) {
+                        let orderHeaderId = data.orderHeaderId;
+                        console.log("OrderHeaderId: ", orderHeaderId);
+
+                        $("#OrderLineOrderHeaderId").val(orderHeaderId);
+                        $.when($.ajax({
+                            url: `api/orderline/list/${orderHeaderId}`,
+                            type: "GET",
+                            cache: false,
+                            success: function (orderLineList) {
+                                console.log("Order line list: ", orderLineList); // Log the response for debugging
+                            },
+                            error: function (req, status, error) {
+                                console.log("Error: ", req, status, error); // Log the error for debugging
+                            }
+                        })).done(function (orderLineList) {
+                            let countLineNumber = orderLineList.length + 1;
+                            let lastOrderLine = {};
+                            lastOrderLine["OrderLineId"] = 1;
+
+                            console.log("lastOrderLineId: ", lastOrderLine);
+
+                            if(orderLineList.lenght > 1){
+                                let field = "OrderLineId";
+
+                                lastOrderLine = arr.reduce((maxObj, currentObj) => {
+                                    return currentObj[field] > maxObj[field] ? currentObj : maxObj;
+                                });
+                            }
+                            console.log("lastOrderLineId 2: ", lastOrderLine);
+
+                            $("#LineNumber").val(countLineNumber);
+                            $("#OrderHeaderId").val(orderHeaderId);
+                            $("#OrderLineId").val(lastOrderLine["OrderLineId"]);
+                            $("#addOrderLineModal").modal('show');
+                        });
+                    } else {
+                        console.log("OrderHeaderId is undefined in the row data");
+                    }
+
+
+
+                    /*let orderHeaderId = orderHeaderTable.row($(this).closest('tr')).data().OrderHeaderId;
+                    console.log("OrderHeaderId: ", orderHeaderId)
+
                     $("#OrderLineOrderHeaderId").val(orderHeaderId);
                     $.when($.ajax({
-                        url: `api/v1/salesorders/orderlinelist?orderHeaderId=${orderHeaderId}`,
+                        url: `api/orderline/list?orderHeaderId=${orderHeaderId}`,
                         type: "GET",
                         cache: false,
                         success: function (orderLineList) {
@@ -742,7 +845,7 @@
                         let countLineNumber = orderLineList.length + 1;
                         $("#LineNumber").val(countLineNumber);
                         $("#addOrderLineModal").modal('show');
-                    });
+                    });*/
 
                 });
 
@@ -786,7 +889,7 @@
 
 
                 $.when($.ajax({
-                    url: `api/v1/salesorders/orderlinelist?orderHeaderId=${orderHeaderId}`,
+                    url: `api/orderline/list?orderHeaderId=${orderHeaderId}`,
                     type: "GET",
                     cache: false,
                     success: function (orderLineList) {
@@ -896,11 +999,11 @@
 
 
         function AddOrderLine(OrderLine) {
-
+            console.log("OrderLine: ", OrderLine)
             $.ajax({
                 type: 'POST',
                 cache: true,
-                url: `api/v1/salesorders/addorderline`,
+                url: `api/orderline/add`,
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 data: JSON.stringify(OrderLine),
@@ -917,7 +1020,7 @@
             $.ajax({
                 type: 'POST',
                 cache: true,
-                url: `api/v1/salesorders/editorderline`,
+                url: `api/orderline/edit`,
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 data: JSON.stringify(OrderLine),
@@ -933,7 +1036,7 @@
             $.ajax({
                 type: 'POST',
                 cache: true,
-                url: `api/v1/salesorders/deleteorderline`,
+                url: `api/orderline/delete`,
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 data: JSON.stringify(OrderLine),
