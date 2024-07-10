@@ -3,6 +3,13 @@
 
     var cssClass = "neworderheader";
 
+
+    Tuple<string, string, string, bool> orderNumberModel;
+    Tuple<string, string, string, bool> orderHeaderIdModel;
+    Tuple<IEnumerable<SelectListItem>, string, string> orderTypeModel;
+    Tuple<IEnumerable<SelectListItem>, string, string> orderStatusModel;
+    Tuple<string, string, string, bool> customerNameModel;
+
     var orderTypeList = new List<SelectListItem>
                 {
                     new SelectListItem { Text = "Normal", Value = "1" },
@@ -165,20 +172,33 @@
                                     <div class="col-sm-4"><label class="control-label">Order Number:</label></div>
                                     <div class="col-sm-8">
                                         @{
-                                            var orderNumberTextModel = new Tuple<string, string, string, bool>
+                                            orderNumberModel = new Tuple<string, string, string, bool>
                                             (
-                                            "OrderHeaderId", "editorderheader", "Order Number", true
+                                            "OrderNumber", "editorderheader", "Order Number", true
                                             );
+
+                                            @*orderHeaderIdModel = new Tuple<string, string, string, bool>
+                                            (
+                                            "OrderHeaderId", "editorderheader", "Order Header", true
+                                            );*@
                                         }
-                                        @await Html.PartialAsync("Components/_TextBox", orderNumberTextModel)
-                                        @*<input class="form-control editorderheader" type="text" name="OrderNumber" id="OrderNumber" />*@
-                                        <input class="form-control editorderheader" type="hidden" id="OrderHeaderId" name="OrderHeaderId" />
+                                        @await Html.PartialAsync("Components/_TextBox", orderNumberModel)
+                                        @*@await Html.PartialAsync("Components/_TextBox", orderHeaderIdModel)
+                                        <input class="form-control editorderheader" type="text" name="OrderNumber" id="OrderNumber" />
+                                        <input class="form-control editorderheader" type="hidden" id="OrderHeaderId" name="OrderHeaderId" />*@
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="col-sm-4"><label class="control-label">Order Type:</label></div>
                                     <div class="col-sm-8">
-                                        @await Html.PartialAsync("Components/_DropdownList", orderTypeDropdownModel)
+                                        @{
+
+                                            orderTypeModel = new Tuple<IEnumerable<SelectListItem>, string, string>
+                                            (
+                                            orderTypeList, "selectpicker editorderheader", "OrderTypeId"
+                                            );
+                                        }
+                                        @await Html.PartialAsync("Components/_DropdownList", orderTypeModel)
                                         @*<select class="form-control selectpicker editorderheader" name="OrderTypeId" id="editOrderTypeId" data-live-search="true" data-size="8" style="width: 70%;">
                                             <option value="1">Normal</option>
                                             <option value="2">Staff</option>
@@ -190,7 +210,14 @@
                                 <div class="form-group">
                                     <div class="col-sm-4"><label class="control-label">Order Status:</label></div>
                                     <div class="col-sm-8">
-                                        @await Html.PartialAsync("Components/_DropdownList", orderStatusDropdownModel)
+                                        @{
+
+                                            orderStatusModel = new Tuple<IEnumerable<SelectListItem>, string, string>
+                                            (
+                                            orderStatusList, "selectpicker editorderheader", "OrderStatusId"
+                                            );
+                                        }
+                                        @await Html.PartialAsync("Components/_DropdownList", orderStatusModel)
                                         @*<select class="form-control selectpicker editorderheader" name="OrderStatusId" id="editOrderStatusId" data-live-search="true" data-size="8" style="width: 70%;">
                                             <option value="1">New</option>
                                             <option value="2">Processing</option>
@@ -201,19 +228,34 @@
                                 <div class="form-group">
                                     <div class="col-sm-4"><label class="control-label">Customer Name:</label></div>
                                     <div class="col-sm-8">
-                                        @await Html.PartialAsync("Components/_TextBox", customerNameTextModel)
+                                        @{
+                                            customerNameModel = new Tuple<string, string, string, bool>
+                                            (
+                                            "CustomerName", "editorderheader", "Order Number", true
+                                            );
+                                        }
+                                        @await Html.PartialAsync("Components/_TextBox", customerNameModel)
                                         @*<input type="text" name="CustomerName" id="CustomerName" class="form-control editorderheader" placeholder="Enter Customer Name" required="" />*@
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="col-sm-4"><label class="control-label">Order date:</label></div>
                                     <div class="col-sm-8">
+                                        @{
+
+
+                                            createdDateModel = new Tuple<string, string, string, bool>
+                                            (
+                                            "CreateDate", "editorderheader", "Create Date", false
+                                            );
+                                        }
                                         @await Html.PartialAsync("Components/_DatePicker", createdDateModel)
                                         @*<input type="text" name="CreateDate" id="CreateDate" class="form-control editorderheader" placeholder="Create Date Date" required="" />*@
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <br />
                         <div class="col-lg-12">
                             <button type="button" class="btn btn-secondary" onclick='javascript: return $("#editorderHeaderModal").modal("hide");'>Close</button>
                             <button type="button" style="display: none" class="btn btn-success" id="btnSaveOrderHeaderChanges">Save Changes</button>
@@ -221,7 +263,7 @@
                         </div>
                     </form>
                 </div>
-                @await Html.PartialAsync("Components/_DataTable", dataTableModel)
+                @*@await Html.PartialAsync("Components/_DataTable", dataTableModel)*@
             </div>
         </div>
     </div>
@@ -243,45 +285,91 @@
                                 <div class="form-group">
                                     <div class="col-sm-4"><label class="control-label">Order Number:</label></div>
                                     <div class="col-sm-8">
+                                        @{
+                                            orderNumberModel = new Tuple<string, string, string, bool>
+                                            (
+                                            "OrderNumber", "editorderheader", "Order Number", true
+                                            );
+
+                                            @*orderHeaderIdModel = new Tuple<string, string, string, bool>
+                                            (
+                                            "OrderHeaderId", "editorderheader", "Order Header", true
+                                            );*@
+                                        }
+                                        @await Html.PartialAsync("Components/_TextBox", orderNumberModel)
+                                        @*@await Html.PartialAsync("Components/_TextBox", orderHeaderIdModel)
                                         <input class="form-control editorderheader" type="text" name="OrderNumber" id="OrderNumber" />
-                                        <input class="form-control  editorderheader" type="hidden" id="OrderHeaderId" name="OrderHeaderId" />
+                                        <input class="form-control  editorderheader" type="hidden" id="OrderHeaderId" name="OrderHeaderId" />*@
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="col-sm-4"><label class="control-label">Order Type:</label></div>
                                     <div class="col-sm-8">
-                                        <select class="form-control selectpicker editorderheader" name="OrderTypeId" id="editOrderTypeId" data-live-search="true" data-size="8" style="width: 70%;">
+                                        @{
+
+                                            orderTypeModel = new Tuple<IEnumerable<SelectListItem>, string, string>
+                                            (
+                                            orderTypeList, "selectpicker editorderheader", "OrderTypeId"
+                                            );
+                                        }
+                                        @await Html.PartialAsync("Components/_DropdownList", orderTypeModel)
+                                        @*<select class="form-control selectpicker editorderheader" name="OrderTypeId" id="editOrderTypeId" data-live-search="true" data-size="8" style="width: 70%;">
                                             <option value="1">Normal</option>
                                             <option value="2">Staff</option>
                                             <option value="3">Mechanical</option>
                                             <option value="4">Perishable</option>
-                                        </select>
+                                        </select>*@
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="col-sm-4"><label class="control-label">Order Status:</label></div>
                                     <div class="col-sm-8">
-                                        <select class="form-control selectpicker editorderheader" name="OrderStatusId" id="editOrderStatusId" data-live-search="true" data-size="8" style="width: 70%;">
+                                        @{
+
+                                            orderStatusModel = new Tuple<IEnumerable<SelectListItem>, string, string>
+                                            (
+                                            orderStatusList, "selectpicker editorderheader", "OrderStatusId"
+                                            );
+                                        }
+                                        @await Html.PartialAsync("Components/_DropdownList", orderStatusModel)
+                                        @*<select class="form-control selectpicker editorderheader" name="OrderStatusId" id="editOrderStatusId" data-live-search="true" data-size="8" style="width: 70%;">
                                             <option value="1">New</option>
                                             <option value="2">Processing</option>
                                             <option value="3">Complete</option>
-                                        </select>
+                                        </select>*@
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="col-sm-4"><label class="control-label">Customer Name:</label></div>
                                     <div class="col-sm-8">
-                                        <input type="text" name="CustomerName" id="CustomerName" class="form-control editorderheader" placeholder="Enter Customer Name" required="" />
+                                        @{
+                                            customerNameModel = new Tuple<string, string, string, bool>
+                                            (
+                                            "CustomerName", "editorderheader", "Order Number", true
+                                            );
+                                        }
+                                        @await Html.PartialAsync("Components/_TextBox", customerNameModel)
+                                        @*<input type="text" name="CustomerName" id="CustomerName" class="form-control editorderheader" placeholder="Enter Customer Name" required="" />*@
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="col-sm-4"><label class="control-label">Order date:</label></div>
                                     <div class="col-sm-8">
-                                        <input type="text" name="CreateDate" id="CreateDate" class="form-control editorderheader" placeholder="Create Date Date" required="" />
+                                        @{
+
+
+                                            createdDateModel = new Tuple<string, string, string, bool>
+                                            (
+                                            "CreateDate", "editorderheader", "Create Date", false
+                                            );
+                                        }
+                                        @await Html.PartialAsync("Components/_DatePicker", createdDateModel)
+                                        @*<input type="text" name="CreateDate" id="CreateDate" class="form-control editorderheader" placeholder="Create Date Date" required="" />*@
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <br />
                         <div class="col-lg-12">
                             <button type="button" class="btn btn-secondary" onclick='javascript: return $("#editorderHeaderModal").modal("hide");'>Close</button>
                             <button type="button" style="display: none" class="btn btn-success" id="btnSaveOrderHeaderChanges">Save Changes</button>
@@ -477,7 +565,6 @@
                 type: "GET",
                 cache: false,
                 success: function (orderHeaderlist) {
-                    console.log(orderHeaderlist)
                     BindOrderHeaderTable(orderHeaderlist)
                 },
                 error: function (req, status, error) {
@@ -540,11 +627,6 @@
         function BindOrderHeaderTable(orderHeaderlist) {
             var orderHeaderTable = undefined;
 
-            console.log("orderHeaderlist: " + JSON.stringify(orderHeaderlist))
-
-            orderHeaderlist.forEach(function (orderHeader) {
-                console.log("single obj" + JSON.stringify(orderHeader));
-            });
             if (orderHeaderTable == undefined) {
 
                 orderHeaderTable = $('#OrderHeaderTable').DataTable({
@@ -578,16 +660,40 @@
                     ]
                 });
 
+                /**
+                 *
+                 *
+                $('.neworderheader').each(function () {
+                    var inputName = $(this).attr('name');
+                    if (inputName !== undefined) {
+                    var inputValue = $(this).val();
+
+                    console.log(inputName + ": " + inputValue);
+                    OrderHeader[inputName] = inputValue;
+                    }
+                });
+                 */
+
                 $('#OrderHeaderTable tbody').on('click', '.edit-order-header', function () {
                     let data = orderHeaderTable.row($(this).closest('tr')).data();
                     $(".editorderheader").each(function (index) {
                         for (let attribute in data) {
-                            if ($(this).attr("name") !== undefined && $(this).attr("name") == attribute) {
-                                if ($(this).attr("name") == 'OrderTypeId' || $(this).attr("name") == 'OrderStatusId') {
+                            var inputName = $(this).attr('name');
 
-                                    $(this).val(data[attribute]).change();
-                                } else {
-                                    $(this).val(data[attribute]);
+                            if (inputName !== undefined) {
+                                var attributeName = Object.keys(data).find(key => key.toLowerCase() === inputName.toLowerCase());
+                                if (attributeName !== undefined) {
+                                    var inputValue = $(this).val();
+                                    if (inputName == 'OrderTypeId' || inputName == 'OrderStatusId') {
+                                        $(this).val(data[attributeName]).change();
+                                    } else if (inputName === 'CreateDate') {
+                                        // Handle date input separately
+                                        let date = new Date(data[attributeName]);
+                                        let formattedDate = date.toISOString().split('T')[0]; // Format to YYYY-MM-DD
+                                        $(this).val(formattedDate);
+                                    } else {
+                                        $(this).val(data[attributeName]);
+                                    }
                                 }
                             }
                         }
